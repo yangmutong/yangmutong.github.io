@@ -3,9 +3,8 @@ node_js: node
 cache:
   directories:
   - node_modules
-
 before_install:
-- openssl aes-256-cbc -K $encrypted_93c3834cbed1_key -iv $encrypted_93c3834cbed1_iv
+- openssl aes-256-cbc -K $encrypted_df4850c8164c_key -iv $encrypted_df4850c8164c_iv
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
 - eval $(ssh-agent)
