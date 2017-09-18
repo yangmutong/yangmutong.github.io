@@ -3,19 +3,16 @@ node_js: node
 cache:
   directories:
   - node_modules
-before_install:
-- openssl aes-256-cbc -K $encrypted_df4850c8164c_key -iv $encrypted_df4850c8164c_iv
-  -in id_rsa.enc -out ~/.ssh/id_rsa -d
-- chmod 600 ~/.ssh/id_rsa
-- eval $(ssh-agent)
-- ssh-add ~/.ssh/id_rsa
-- cp ssh_config ~/.ssh/config
-- cat ~/.ssh/config
-- git config --global user.name "yangmutong"
-- git config --global user.email 985777876@qq.com
-- git config -l
+addons:
+  ssh_known_hosts: github.com
+
 install:
-- npm install
+  - npm install
 script:
-- hexo g
-- hexo d
+  - hexo g
+deploy:
+  provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    branch: source

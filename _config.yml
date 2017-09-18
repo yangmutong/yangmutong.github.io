@@ -77,9 +77,6 @@ theme: next
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  - type: git
-    repo: https://github.com/yangmutong/yangmutong.github.io.git
-    branch: master
-  - type: git
-    repo: git@git.coding.net:yangmutong/yangmutong.git
-    branch: master
+  type: git
+  repo: https://github.com/yangmutong/yangmutong.github.io.git
+  branch: master
