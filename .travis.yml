@@ -1,8 +1,5 @@
 language: node_js
 node_js: node
-branches:
-  only:
-  - source
 cache:
   directories:
   - node_modules
