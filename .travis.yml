@@ -9,6 +9,7 @@ env:
   global:
     secure: malCGvTo1aAWxFFFi0kiS8ocy4rkiRCuGNf8pGAzskEwE6hNGNvjOTS9Z2o6YvwtYrS5jF/FJtS0Ob8LVfs2TDBKhEf0Hggc9JUZuMnCnLxKhVhVuJETWAcFf2sSciOV+ud/EqfEQ7g9331IpUT+M49vcoaBnbvcYLjpIPDNxj2zJyWabZtvhNEocdfuWWFuOEDAQ6ZjBj7aAxI3Xowrj6k7vLkPntAgvWo/akO4w1+CGb6yke39b3vNFDEnL1z777fMkNJ05tiNUXQ1yrY3ZaFh+Z4HNkbQQNdtlrC1QSJWAsIZGiEkvGe1fEUBDRSrcLPeVeCw5GxMz9c/SxP3cND6wywPrZZS8p7HxDH4WB5zUdHpPPjtv+R6t/jIXSjyAky/NExGYN5gaO0mh1cpWkldlnxK+D2QlDEZNqNHVb8sChYaFcRbXwWVubR7e12qlwYX3fWquXNrIvytFLkmr7l8s1JClN/EvxHhJsfOM7O9o5LUW8axP2UYEcGVpaboJ8nwfzLgFkzuz4dmDdEyTzJgVIN/sjg1cVdKW7zcnFLbOmyNGG1SU/fNRIrj4WTb3jx+UBPI9kZZFOQNVWFUjVt+RDBWhM5wOKZsRs14RdcB3Fd0L/NcDpTz6O+ZtwD1lsdH/RGXKn7mLc4dSH3om4lzdKejaG1mNBVULDVVqi8=
 before_install:
+- export TZ='Asia/Shanghai'
 - npm install -g hexo
 - npm install -g hexo-cli
 - git config --global user.name "yangmutong"
