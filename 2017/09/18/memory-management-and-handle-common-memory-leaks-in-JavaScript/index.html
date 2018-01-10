@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JavaScript,Memory," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="阅读《How JavaScript works: memory management + how to handle 4 common memory leaks》文章笔记 Alexander Zlatkovblog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-">
+<meta name="keywords" content="JavaScript,Memory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript中的内存管理与常见的内存泄漏处理方法-笔记">
+<meta property="og:url" content="http://yoursite.com/2017/09/18/memory-management-and-handle-common-memory-leaks-in-JavaScript/index.html">
+<meta property="og:site_name" content="Atom">
+<meta property="og:description" content="阅读《How JavaScript works: memory management + how to handle 4 common memory leaks》文章笔记 Alexander Zlatkovblog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-09-21T16:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript中的内存管理与常见的内存泄漏处理方法-笔记">
+<meta name="twitter:description" content="阅读《How JavaScript works: memory management + how to handle 4 common memory leaks》文章笔记 Alexander Zlatkovblog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/18/memory-management-and-handle-common-memory-leaks-in-JavaScript/"/>
+
+
+
+
+
+  <title>JavaScript中的内存管理与常见的内存泄漏处理方法-笔记 | Atom</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Atom</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">个人博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/18/memory-management-and-handle-common-memory-leaks-in-JavaScript/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mutong Yang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Atom">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JavaScript中的内存管理与常见的内存泄漏处理方法-笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-18T18:55:43+08:00">
+                2017-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p></p><p>阅读《How JavaScript works: memory management + how to handle 4 common memory leaks》文章笔记<br></p>
+<footer><strong>Alexander Zlatkov</strong><cite><a href="https://blog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-3f28b94cfbec" target="_blank" rel="external">blog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-3f28b94cfbec</a></cite></footer></blockquote><p></p>
+<p>常见的编程语言，例如C/C++这些低级编程语言是由编程人员自己手动管理内存的，例如常见的内存分配<code>malloc</code>和内存释放<code>free</code>。程序员可以使用这些语法来向操作系统请求或者释放掉内存。</p>
+<a id="more"></a>
+<p>其他高级编程语言，例如Java/JavaScript，在语言层面上做了自动的内存管理，无须程序编写人员手动的编写内存管理。JavaScript中有个单独的垃圾回收进程，在变量，对象，字符串等呗创建时动态的分配内存，并且在这些变量，对象或字符串不再被使用之后释放他们。自动的过程简化了内存管理的过程，使得程序员不需要过分关心内存的分配情况，同时避免了不靠谱的内存操作。但是同时很多人完全忽略掉了内存管理这个问题。</p>
+<p>内存管理一直是一大难题，有一本关于垃圾回收的书很有名，有空可以阅读下：<br><blockquote><p>《垃圾回收的算法与实现》</p>
+<footer><strong>[日] 中村成洋，相川光 著；丁灵 译；竹内郁雄 校</strong><cite><a href="https://item.jd.com/12010270.html" target="_blank" rel="external">item.jd.com/12010270.html</a></cite></footer></blockquote></p>
+<p>回到正题，自动内存管理并不是很智能的，它可以handle住大多数的情况，但是总有些意料之外的问题，并且这些意料之外的问题大多是由于编写人员部署需内存机制导致的。</p>
+<h3 id="内存生命周期"><a href="#内存生命周期" class="headerlink" title="内存生命周期"></a>内存生命周期</h3><p>无论哪种编程语言，都有一个类似生命周期过程：</p>
+<p>内存分配 -&gt; 内存使用 -&gt; 内存释放，</p>
+<p>三个生命周期的过程大概如下：</p>
+<ol>
+<li>内存分配： 操作系统分配内存空间出来给编程语言使用，如上所述，低级语言如C/C++，需要手动的申请内存，而在高级语言中，一切都是自动的。</li>
+<li>内存使用： 这个阶段是编程语言运行时使用内存的阶段，运行时使用这些内存进行读写操作</li>
+<li>内存释放： 当不再需要某些内存对象时，便可以释放它，这一部分内存空间会被操作系统回收，并可用做下次内存分配。</li>
+</ol>
+<h3 id="什么是内存"><a href="#什么是内存" class="headerlink" title="什么是内存"></a>什么是内存</h3><p>硬件层面上，内存是大量的晶体管构成的组合体，多个晶体管组合成flip flops，每个flip flops由一个特殊的标识符做索引，用于寻址，从而可以内存寻址，并且可以复写或者读取flip flops上的内容。</p>
+<p>一个晶体管可以存储1bit，8个bit为一个byte，根据不同的操作系统和硬件平台，16/32个bit可以组成一个word。在一个程序由开始到结束的过程中，几乎所有的东西都需要和内存相关。所有的变量和程序中使用的数据需要存储到内存中，所有的程序代码。包括操作系统本身也需要装载至系统中。</p>
+<p>当编译器编译代码时，编译器会提前估算出程序中所有的原始数据类型所需要的内存容量，然后固定数量的内存空间会被分配给程序，这些内存空间通常称为栈空间。栈空间用于存放上面计算所需的所有的原始数据类型。之所以称之为栈空间，是因为变量的进出遵循FIFO原则。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">int n; <span class="comment">// 4 bytes</span></div><div class="line">int x[<span class="number">4</span>]; <span class="comment">// 4 * 4 bytes</span></div><div class="line">double m; <span class="comment">// 8 bytes</span></div></pre></td></tr></table></figure>
+<p>编译器可以简单的确定总共需要 4 + 4 * 4 + 8 = 28 bytes。</p>
+<blockquote><p>每一个int型变量或double型变量占用几个字节和操作系统，硬件平台相关，实际情况应具体情况具体分析</p>
+</blockquote>
+<p>编译器请求在栈空间分配特定数量的内存空间，用于存放变量。在上面的示例代码中，编译器明确的知道它所需要的内存空间的大小和地址。无论我们对变量x进行何种操作， 基本上都会被翻译为对内存空间地址为xxxx的内存进行操作。</p>
+<p>每个变量所代表的都是一个内存地址，内存地址指向的内存空间会存储变量对应的值。我们可以把变量当做一个地址，专门用于寻找对应内存地址的内存空间所储存的数据。</p>
+<p>当一个函数调用另外一个函数的时候，每一个函数被调用时都会获得自身的栈块，栈块保存着这个函数自身的所有本地变量和一个程序计数器，程序计数器保存着执行器的位置。当函数运行结束后，对应的内存块会被释放，用作其他用途。</p>
+<h3 id="动态内存分配"><a href="#动态内存分配" class="headerlink" title="动态内存分配"></a>动态内存分配</h3><p>由上所述，栈空间一般会在编译时申请并能够计算出大致的所需要的内存空间大小。然后更多的时候，根本无法在编译时确定所需要的内存空间大小。<br>例如读取用户数据，数据大小无法确定，或者读取文件，同样也无法确定。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> n = readDataFromUser();</div><div class="line"><span class="comment">// some async input event functions</span></div><div class="line"><span class="keyword">let</span> a = <span class="keyword">new</span> <span class="built_in">Array</span>(n);</div></pre></td></tr></table></figure>
+<p>编译时，编译器并不知道需要多大的内存空间供给数组<code>a</code>使用。因为数组<code>a</code>的大小只能够在运行时确定。因此这部分只能够在运行时确定分配的内存大小，不能够在栈空间上进行分配。只能够在运行时，从一个名为堆空间的地方分配而来。</p>
+<p>关于内存的静态分配和动态分配主要有以下不同之处</p>
+<table>
+<thead>
+<tr>
+<th>静态分配</th>
+<th>动态分配</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内存空间大小必须在编译时确定</td>
+<td>需要的内存空间的大小在编译时可能无法确定</td>
+</tr>
+<tr>
+<td>编译时进行内存分配，向操作系统申请空间</td>
+<td>运行时申请内存</td>
+</tr>
+<tr>
+<td>内存空间分配给栈空间</td>
+<td>内存分配给堆空间</td>
+</tr>
+<tr>
+<td>FILO 序列</td>
+<td>无特定的进出序列</td>
+</tr>
+</tbody>
+</table>
+<blockquote><p>关于内存的动态分配需要关注内存指针的内容，具体的话会另开博客阐述</p>
+</blockquote>
+<h3 id="JS中内存分配"><a href="#JS中内存分配" class="headerlink" title="JS中内存分配"></a>JS中内存分配</h3><p>以上阐述的大多是概念性的内容，适用于大多数的解释型语言。接下来具体讲述下JS中详细的内存分配机制</p>
+<p>JS将内存分配的任务从开发者的身上转移到自身，由JS自己负责内存的分配。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> n  = <span class="number">111</span>; <span class="comment">// 分配内存储存数字</span></div><div class="line"><span class="keyword">let</span> s = <span class="string">'ssssss'</span>; <span class="comment">// 分配内存存储字符串</span></div><div class="line"><span class="keyword">let</span> o = &#123;</div><div class="line">    a: <span class="number">1</span>,</div><div class="line">    b: <span class="number">2</span></div><div class="line">&#125;; <span class="comment">// 分配内存给对象和对象内的值</span></div><div class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, nul, <span class="string">'sgsg'</span>]; <span class="comment">// 同对象的内存分配，给数组和数组内的值分配内存空间</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> a + <span class="number">1111</span>;</div><div class="line">&#125; <span class="comment">// function同为对象，只是callable，分配策略同上</span></div><div class="line"><span class="built_in">document</span>.body.addEventListener(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'event handler'</span>);</div><div class="line">&#125;, <span class="literal">false</span>); <span class="comment">// 同上</span></div><div class="line"></div><div class="line"><span class="keyword">let</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>(); <span class="comment">// 分配Date对象</span></div><div class="line"><span class="keyword">let</span> ele = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>); <span class="comment">// 分配DOM对象</span></div><div class="line"></div><div class="line"><span class="keyword">let</span> str1 = <span class="string">'asdfqweqwe'</span>;</div><div class="line"><span class="keyword">let</span> str2 = str1.substr(<span class="number">0</span>, <span class="number">3</span>); <span class="comment">// JS中字符串是不可变对象，一般来说会重新创建一个新的String对象然后赋值给`str2`</span></div><div class="line"><span class="comment">// 或者JS引擎会执行优化，只存储`str1`的`0-3`位置上的字符的地址。</span></div></pre></td></tr></table></figure>
+<h3 id="JS中内存的使用"><a href="#JS中内存的使用" class="headerlink" title="JS中内存的使用"></a>JS中内存的使用</h3><p>使用内存即从内存中读取数据或者写数据。可以通过变量名赋值取值，或者函数中调用，传参等实现</p>
+<h3 id="JS中内存释放"><a href="#JS中内存释放" class="headerlink" title="JS中内存释放"></a>JS中内存释放</h3><p>内存释放一直是一大难题，内存管理中大部分问题都出现在这个阶段。</p>
+<p>一般的内存释放策略都是一旦这部分内存上的数据不再被使用了或者此块内存不再被使用了，就可以释放该块内存。然而最难确定的是如何确定被分配的内存是否真的不再会被使用了。自动内存管理的一大弊端就在于此，尽量C/C++手动管理内存很麻烦，也很容易出错，但是如果开发者清楚何时何地申请或者释放内存，那么就是有优势的。而自动内存管理无法真的确定一块内存是否真的不再需要了。</p>
+<p>高级语言一般包含一个嵌入的程序-垃圾回收器。垃圾回收器的职责是跟踪所有的内存分配和使用，以便于确定一块被分配的内存是否不再被需要使用了，如果是，那么就释放这块内存。</p>
+<p>然而垃圾回收过程只能做到不完美的效果，因为一块内存是否被需要，是一个垃圾回收器难以决定的问题。</p>
+<p>大多数的垃圾回收器退而求其次，既然不存在一个算法能否真的确定一块内存是否真的被需要，那么可以追踪一个内存是否可以被访问，例如一旦运行进程跳出了某个变量的作用域，那么这个变量就不再可访问了，那么就可以释放这部分内存。</p>
+<h3 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h3><p>接下来介绍几种常见的垃圾回收算法和优缺点：</p>
+<h4 id="内存引用"><a href="#内存引用" class="headerlink" title="内存引用"></a>内存引用</h4><p>todo: 待完善</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/Memory/" rel="tag"># Memory</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/14/new-personal-blog/" rel="next" title="new-personal-blog">
+                <i class="fa fa-chevron-left"></i> new-personal-blog
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/08/a-brief-introduction-to-babel/" rel="prev" title="babel学习（1）">
+                babel学习（1） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Mutong Yang" />
+          <p class="site-author-name" itemprop="name">Mutong Yang</p>
+           
+              <p class="site-description motion-element" itemprop="description">个人博客;前端;IT;Spark;Hadoop;全沾</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://www.github.com/yangmutong" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存生命周期"><span class="nav-number">1.</span> <span class="nav-text">内存生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是内存"><span class="nav-number">2.</span> <span class="nav-text">什么是内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态内存分配"><span class="nav-number">3.</span> <span class="nav-text">动态内存分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JS中内存分配"><span class="nav-number">4.</span> <span class="nav-text">JS中内存分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JS中内存的使用"><span class="nav-number">5.</span> <span class="nav-text">JS中内存的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JS中内存释放"><span class="nav-number">6.</span> <span class="nav-text">JS中内存释放</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾回收"><span class="nav-number">7.</span> <span class="nav-text">垃圾回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#内存引用"><span class="nav-number">7.1.</span> <span class="nav-text">内存引用</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mutong Yang</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
